@@ -9,8 +9,7 @@ import logging
 from apc.version.shared import VersionNotFound, Version
 from apc.versionplugin.default import get_version as get_git_version
 
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger('apc.versionplugin.debianize')
+log = logging.getLogger('apc.versionplugin.debianize.version')
 
 
 __all__ = ('get_version')
@@ -27,4 +26,5 @@ def get_version():
     try:
         return get_git_version()
     except VersionNotFound:
+        log.debug('no version tag found, taking version from setup.py')
         return Version(subprocess.check_output(['python', 'setup.py', '--version']))
