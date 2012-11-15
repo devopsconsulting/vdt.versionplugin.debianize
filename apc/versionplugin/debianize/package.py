@@ -14,7 +14,7 @@ def build_package(version):
         branch = subprocess.check_output(['git', 'branch'])
         subprocess.check_call(['git', 'checkout', str(version)])
         subprocess.check_call(['debianize.sh', '--version=%s' % version, '--python-install-lib=/usr/lib/python2.7/dist-packages/'])
-        subprocess.check_call(['git', 'checkout', branch[:2]])
+        subprocess.check_call(['git', 'checkout', branch[2:]])
     except subprocess.CalledProcessError as e:
         log.error("Package creation failed: {0}".format(e))
 
