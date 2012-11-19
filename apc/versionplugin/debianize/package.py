@@ -11,7 +11,7 @@ def build_package(version):
     """
     log.debug("Building version {0} with debianize.".format(version))
     try:
-        branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
+        branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).rstrip()
         subprocess.check_call(['git', 'checkout', str(version)])
         subprocess.check_call(['debianize.sh', '--version=%s' % version, '--python-install-lib=/usr/lib/python2.7/dist-packages/'])
         subprocess.check_call(['git', 'checkout', branch])
