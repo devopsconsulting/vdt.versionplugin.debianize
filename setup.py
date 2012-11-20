@@ -1,7 +1,7 @@
 # coding: utf-8
 from setuptools import find_packages, setup
 
-pkgname = "apc.versionplugin.debianize"
+pkgname = "vdt.versionplugin.debianize"
 
 setup(name=pkgname,
       version="0.0.2",
@@ -12,12 +12,12 @@ setup(name=pkgname,
       maintainer_email="lars@permanentmarkers.nl",
       packages=find_packages(),
       include_package_data=True,
-      namespace_packages=['apc', 'apc.versionplugin'],
+      namespace_packages=['vdt', 'vdt.versionplugin'],
       zip_safe=True,
       install_requires=[
           "setuptools",
-          "apc.version",
-          "apc.versionplugin.default",
+          "vdt.version",
+          "vdt.versionplugin.default",
       ],
       entry_points={},
 )

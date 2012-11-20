@@ -6,10 +6,10 @@ up the current version.
 import subprocess
 import logging
 
-from apc.version.shared import VersionNotFound, Version
-from apc.versionplugin.default import get_version as get_git_version
+from vdt.version.shared import VersionNotFound, Version
+from vdt.versionplugin.default import get_version as get_git_version
 
-log = logging.getLogger('apc.versionplugin.debianize.version')
+log = logging.getLogger('vdt.versionplugin.debianize.version')
 
 
 __all__ = ('get_version')

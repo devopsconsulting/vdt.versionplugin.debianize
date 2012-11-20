@@ -2,7 +2,7 @@ import logging
 import subprocess
 
 
-log = logging.getLogger('apc.versionplugin.debianize.package')
+log = logging.getLogger('vdt.versionplugin.debianize.package')
 
 
 def build_package(version):
