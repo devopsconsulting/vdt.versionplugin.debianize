@@ -10,13 +10,8 @@ def build_package(version):
     Build package with debianize.
     """
     log.debug("Building version {0} with debianize.".format(version))
-    try:
-        branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).rstrip()
-        subprocess.check_call(['git', 'checkout', str(version)])
+    with version.checkout_tag:
         subprocess.check_call(['debianize.sh', '--version=%s' % version, '--python-install-lib=/usr/lib/python2.7/dist-packages/'] + version.extra_args)
-        subprocess.check_call(['git', 'checkout', branch])
-    except subprocess.CalledProcessError as e:
-        log.error("Package creation failed: {0}".format(e))
 
 def set_package_version(version):
     """
