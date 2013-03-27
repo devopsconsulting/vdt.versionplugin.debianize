@@ -15,7 +15,7 @@ log = logging.getLogger('vdt.versionplugin.debianize.version')
 __all__ = ('get_version')
 
 
-def get_version():
+def get_version(version_args):
     """
     Retrieve the version from the repo, if no version tag
     can be found, read it from the setup script
@@ -24,7 +24,7 @@ def get_version():
     root of the repository.
     """
     try:
-        return get_git_version()
+        return get_git_version(version_args)
     except VersionNotFound:
         log.debug('no version tag found, taking version from setup.py')
-        return Version(subprocess.check_output(['python', 'setup.py', '--version']))
+        return Version(subprocess.check_output(['python', 'setup.py', '--version']), extra_args=version_args)
