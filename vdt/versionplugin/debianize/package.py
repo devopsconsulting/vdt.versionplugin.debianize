@@ -17,10 +17,16 @@ def build_package(version):
         for include in args.include:
             includes.append('-i')
             includes.append(include)
-    
+
+    excludes = []
+    if args.exclude:
+        for exclude in args.exclude:
+            excludes.append('-I')
+            excludes.append(exclude)
+
     log.debug("Building version {0} with debianize.".format(version))
     with version.checkout_tag:
-        cmd = ['debianize.sh'] + includes + ['--version=%s' % version, '--python-install-lib=/usr/lib/python2.7/dist-packages/'] + extra_args
+        cmd = ['debianize.sh'] + includes + excludes + ['--version=%s' % version, '--python-install-lib=/usr/lib/python2.7/dist-packages/'] + extra_args
         log.debug("Running command {0}".format(" ".join(cmd)))
         log.debug(subprocess.check_output(cmd))
 
