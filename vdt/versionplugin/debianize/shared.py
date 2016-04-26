@@ -34,9 +34,9 @@ class FileFilter(object):
     def is_filtered(self, path):
         filtered = False
         if self.exclude:
-            filtered = any(pattern in path for pattern in self.exclude)
+            filtered = any(re.search(pattern, basename(path), re.IGNORECASE) is not None for pattern in self.exclude)
         if self.include:
-            filtered = not any(pattern in path for pattern in self.include)
+            filtered = not any(re.search(pattern, basename(path), re.IGNORECASE) is not None for pattern in self.include)
 
         return filtered
 
@@ -68,7 +68,7 @@ class DebianizeArgumentParser(object):
 
 def parse_version_extra_args(version_args):
     parser = DebianizeArgumentParser(version_args)
-    return parser.parser_known_args()
+    return parser.parse_known_args()
 
 
 def build_from_python_source_with_fpm(args, extra_args, target_path=None, version=None, file_name=None):
