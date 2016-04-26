@@ -14,7 +14,7 @@ from vdt.versionplugin.debianize.config import PACKAGE_TYPES, PACKAGE_TYPE_CHOIC
 
 
 def main():
-    p = argparse.ArgumentParser(description="Package python packages with debianize.sh.")
+    p = argparse.ArgumentParser(description="Correct package spec files with weird dependency names.")
     p.add_argument('target',  choices=PACKAGE_TYPE_CHOICES, help="the type of package you want to create (deb, rpm, solaris, etc)")
     p.add_argument('control', help="The path to the control file")
 
