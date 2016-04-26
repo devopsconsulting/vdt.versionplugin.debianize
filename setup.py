@@ -18,6 +18,7 @@ setup(name=pkgname,
           "setuptools",
           "vdt.version",
           "vdt.versionplugin.default",
+          "pip==8.1.1"
       ],
       entry_points={},
 )
