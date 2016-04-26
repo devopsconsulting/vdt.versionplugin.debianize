@@ -1,3 +1,10 @@
+"""
+This script will be used by fpm to edit the control file during package
+building.
+
+The script will correct all the crazy names defined in the ``PACKAGE_TYPES``
+configuration object.
+"""
 import os
 import re
 import argparse

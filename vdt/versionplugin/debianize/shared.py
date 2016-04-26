@@ -81,12 +81,18 @@ def build_from_python_source_with_fpm(args, extra_args, target_path=None, versio
 
             config = PACKAGE_TYPES[args.target]
             broken_scheme_names = config['broken_scheme_names']
+
+            # some packages have weird names that need fixing.
+            # they need fixing on 2 places, the package name itself and also
+            # everywhere where dependencies are declared.
             if broken_scheme_names is not None:
                 if file_name is not None:
                     package_name = PACKAGE_NAME_REGEX.match(file_name).group('name')
-                    if package_name in broken_scheme_names:
+                    if package_name in broken_scheme_names:  # package name is broken, override package name
                         cmd += ['--name', broken_scheme_names[package_name]]
 
+                # make sure that control file is passed to vdt.fpmeditor
+                # for correction of weird dependency names.
                 env = os.environ.copy()
                 env['EDITOR'] = "vdt.fpmeditor %s" % args.target
 
