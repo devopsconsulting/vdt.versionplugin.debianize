@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import tarfile
 
-from os.path import join, basename, dirname
+from os.path import join, basename
 from glob import glob
 
 from pip.commands.download import DownloadCommand
@@ -19,7 +19,6 @@ from vdt.versionplugin.debianize.config import PACKAGE_TYPES, PACKAGE_TYPE_CHOIC
 log = logging.getLogger(__name__)
 
 pre_remove_script = join(FILES_PATH, 'files/preremove.sh')
-scheme_name_filter = join(FILES_PATH, 'files/filter.awk')
 
 PACKAGE_NAME_REGEX = re.compile(r"(?P<name>.*)-.*")
 
