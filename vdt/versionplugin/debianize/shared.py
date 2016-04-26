@@ -14,7 +14,7 @@ from vdt.version.utils import change_directory
 
 log = logging.getLogger(__name__)
 
-pre_remove_script = join(dirname(__file__), 'files/preremove')
+pre_remove_script = join(dirname(__file__), 'files/preremove.sh')
 
 
 class FileFilter(object):
