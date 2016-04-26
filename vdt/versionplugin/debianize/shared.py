@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import tarfile
+import zipfile
 
 from os.path import join, basename
 from glob import glob
@@ -162,12 +163,18 @@ class PackageBuilder(object):
                 '--dest=%s' % install_dir,
                 deb_dir
         ])
-        return glob(join(install_dir, '*.tar.gz'))
+        return glob(join(install_dir, '*.tar.gz')) + glob(join(install_dir, '*.zip'))
+
+    def select_file_type(self, path):
+        if path.lower().endswith('.zip'):
+            return zipfile.ZipFile(path), basename(path)[:-4]
+        else:  # assume it is a tarball
+            return tarfile.open(path), basename(path)[:-7]
 
     def build_dependency(self, args, extra_args, path, package_dir, deb_dir):
-        with tarfile.open(path) as tar:  # extract the python package
+        handle, package_name = self.select_file_type(path)
+        with handle as tar:  # extract the python package
             tar.extractall(package_dir)
-            package_name = basename(path)[:-7]
 
             # determine folder name where setup.py lives
             target_path = join(package_dir, package_name)
