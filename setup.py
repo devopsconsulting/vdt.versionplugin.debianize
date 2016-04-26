@@ -16,7 +16,7 @@ setup(name=pkgname,
       zip_safe=True,
       install_requires=[
           "setuptools",
-          "vdt.version",
+          "vdt.version>=0.1.4",
           "vdt.versionplugin.default",
           "pip==8.1.1"
       ],
