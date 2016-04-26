@@ -41,20 +41,34 @@ class FileFilter(object):
         return filtered
 
 
-def parse_version_extra_args(version_args):
-    p = argparse.ArgumentParser(description="Package python packages with debianize.sh.")
-    p.add_argument('--include','-i', action='append', help="Using this flag makes following dependencies explicit. It will only build dependencies listed in install_requires that match the regex specified after -i. Use -i multiple times to specify multiple packages")
-    p.add_argument('--exclude', '-I', action='append', help="Using this flag, packages can be exluded from being built, dependencies matching the regex, whill not be built")
-    p.add_argument('--maintainer', help="The maintainer of the package", default="nobody@example.com")
-    p.add_argument('--pre-remove-script', default=pre_remove_script)
-    p.add_argument('--fpm-bin', default='fpm')
-    p.add_argument('--python-install-lib', default='/usr/lib/python2.7/dist-packages/')
-    p.add_argument('--target', '-t', default='deb', choices=PACKAGE_TYPE_CHOICES, help='the type of package you want to create (deb, rpm, solaris, etc)')
-    p.add_argument('--no-python-dependencies', default=False, action='store_true', help="Do not include requirements defined in setup.py as dependencies.")
-    p.add_argument('--vdt-fpmeditor-path', default='vdt.fpmeditor', help="path to vdt.fpmeditor or some other script you need to use on package spec files.")
-    args, extra_args = p.parse_known_args(version_args)
+class DebianizeArgumentParser(object):
+    "Package python packages with debianize.sh."
+    def __init__(self, version_args):
+        self.version_args = version_args
+
+    def get_parser(self):
+        p = argparse.ArgumentParser(description=self.__doc__)
+        p.add_argument('--include','-i', action='append', help="Using this flag makes following dependencies explicit. It will only build dependencies listed in install_requires that match the regex specified after -i. Use -i multiple times to specify multiple packages")
+        p.add_argument('--exclude', '-I', action='append', help="Using this flag, packages can be exluded from being built, dependencies matching the regex, whill not be built")
+        p.add_argument('--maintainer', help="The maintainer of the package", default="nobody@example.com")
+        p.add_argument('--pre-remove-script', default=pre_remove_script)
+        p.add_argument('--fpm-bin', default='fpm')
+        p.add_argument('--python-install-lib', default='/usr/lib/python2.7/dist-packages/')
+        p.add_argument('--target', '-t', default='deb', choices=PACKAGE_TYPE_CHOICES, help='the type of package you want to create (deb, rpm, solaris, etc)')
+        p.add_argument('--no-python-dependencies', default=False, action='store_true', help="Do not include requirements defined in setup.py as dependencies.")
+        p.add_argument('--vdt-fpmeditor-path', default='vdt.fpmeditor', help="path to vdt.fpmeditor or some other script you need to use on package spec files.")
+        return p
+
+    def parse_known_args(self):
+        p = self.get_parser()
+        args, extra_args = p.parse_known_args(self.version_args)
     
-    return args, extra_args
+        return args, extra_args
+
+
+def parse_version_extra_args(version_args):
+    parser = DebianizeArgumentParser(version_args)
+    return parser.parser_known_args()
 
 
 def build_from_python_source_with_fpm(args, extra_args, target_path=None, version=None, file_name=None):
