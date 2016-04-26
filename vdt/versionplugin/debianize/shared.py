@@ -68,10 +68,12 @@ def build_from_python_source_with_fpm(fpm_bin, target, maintainer, pre_remove_sc
             ) + (tuple() if version is None else ('--version=%s' % version,)) + extra_args + ("setup.py",)
             log.debug("Running command %s" % " ".join(cmd))
             log.debug(subprocess.check_output(cmd))
+            return 0
         except subprocess.CalledProcessError as e:
             log.error("failed to build with fpm status code %s\n%s" % (
                 e.returncode, e.output
             ))
+            return 1
 
 
 class PackageBuilder(object):
@@ -88,9 +90,13 @@ class PackageBuilder(object):
         self.directory = directory
         self.exit_code = 0
 
+    def update_exit_code(self, code):
+        if self.exit_code == 0:
+            self.exit_code = code
+
     def build_package(self, version, args, extra_args):
         # build current directory, which is a python egg
-        build_from_python_source_with_fpm(
+        ex = build_from_python_source_with_fpm(
             args.fpm_bin,
             args.target,
             args.maintainer,
@@ -99,6 +105,7 @@ class PackageBuilder(object):
             version=version,
             *extra_args
         )
+        self.update_exit_code(ex)
 
     def download_dependencies(self, install_dir, deb_dir):
         downloader = DownloadCommand(False)
@@ -114,7 +121,7 @@ class PackageBuilder(object):
             tar.extractall(package_dir)
             package_name = basename(path)[:-7]
             target_path = join(package_dir, package_name)
-            build_from_python_source_with_fpm(
+            ex = build_from_python_source_with_fpm(
                 args.fpm_bin,
                 args.target,
                 args.maintainer,
@@ -123,12 +130,12 @@ class PackageBuilder(object):
                 target_path=target_path,
                 *extra_args
             )
-
+            self.update_exit_code(ex)
             for deb in glob(join(target_path, '*.deb')):
                 try:
                     shutil.move(deb, deb_dir)
                 except shutil.Error:
-                    self.exit_code = 5
+                    self.update_exit_code(5)
                     log.error("%s allready exists" % package_name)
         
     def build_dependencies(self, version, args, extra_args, deb_dir):
