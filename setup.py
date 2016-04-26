@@ -20,5 +20,9 @@ setup(name=pkgname,
           "vdt.versionplugin.default",
           "pip==8.1.1"
       ],
-      entry_points={},
+      entry_points={
+        'console_scripts':[
+            'vdt.fpmeditor = vdt.versionplugin.debianize.fpmeditor:main',
+        ]
+      },
 )
