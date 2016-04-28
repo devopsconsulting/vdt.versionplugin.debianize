@@ -142,6 +142,8 @@ class PackageBuilder(object):
         self.extra_args = extra_args
         self.directory = directory
         self.exit_code = 0
+        # some packages might not be needed, so construct the filter.
+        self.file_filter = FileFilter(args.include, args.exclude)
 
     def update_exit_code(self, code):
         if self.exit_code == 0:
@@ -193,20 +195,17 @@ class PackageBuilder(object):
                 except shutil.Error:
                     self.update_exit_code(5)
                     log.error("%s allready exists" % package_name)
-        
+
     def build_dependencies(self, version, args, extra_args, deb_dir):
         # let's download all the dependencies in a temorary directory
         with empty_directory() as install_dir:
 
-            # some packages might not be needed, so construct the filter.
-            file_filter = FileFilter(args.include, args.exclude)
-            
             # process all the downloaded packages with fpm
             downloaded_packages = self.download_dependencies(install_dir, deb_dir)
             for download in downloaded_packages:
-                if file_filter.is_filtered(download):
+                if self.file_filter.is_filtered(download):
                     log.info("skipping %s because it is filtered out by %s" % (
-                        basename(download), file_filter
+                        basename(download), self.file_filter
                     ))
                 else:
                     with empty_directory(install_dir) as package_dir:
