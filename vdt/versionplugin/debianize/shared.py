@@ -183,7 +183,10 @@ class PackageBuilder(object):
 
             # determine folder name where setup.py lives
             target_path = join(package_dir, package_name)
-            dependency_builder = dependency_builder or build_from_python_source_with_fpm  # noqa
+
+            if dependency_builder is None:
+                dependency_builder = build_from_python_source_with_fpm
+
             ex = dependency_builder(
                 args,
                 extra_args,
@@ -192,8 +195,12 @@ class PackageBuilder(object):
             )
             self.update_exit_code(ex)
 
+            if glob_pattern is None:
+                # when not defined, default the glob to what's in the config
+                glob_pattern = PACKAGE_TYPES[args.target]['glob']
+
             # moves debs to common folder.
-            for deb in glob(join(target_path, glob_pattern or PACKAGE_TYPES[args.target]['glob'])):
+            for deb in glob(join(target_path, glob_pattern)):
                 try:
                     shutil.move(deb, deb_dir)
                 except shutil.Error:
