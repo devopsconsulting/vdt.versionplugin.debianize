@@ -22,3 +22,5 @@ PACKAGE_TYPES = {
         'glob': '*.pkg'
     }
 }
+
+PACKAGE_TYPE_CHOICES = PACKAGE_TYPES.keys()

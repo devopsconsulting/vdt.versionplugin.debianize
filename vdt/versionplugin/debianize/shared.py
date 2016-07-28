@@ -17,6 +17,7 @@ from vdt.version.utils import change_directory
 
 from vdt.versionplugin.debianize.config import (
     PACKAGE_TYPES,
+    PACKAGE_TYPE_CHOICES,
     FILES_PATH,
 )
 
@@ -50,19 +51,15 @@ class DebianizeArgumentParser(object):
     def __init__(self, version_args):
         self.version_args = version_args
 
-    @property
-    def package_type_choices(self):
-        return PACKAGE_TYPES.keys()
-
     def get_parser(self):
-        p = argparse.ArgumentParser(description=self.__doc__)
+        p = argparse.ArgumentParser(description=self.__doc__, conflict_handler='resolve')
         p.add_argument('--include','-i', action='append', help="Using this flag makes following dependencies explicit. It will only build dependencies listed in install_requires that match the regex specified after -i. Use -i multiple times to specify multiple packages")
         p.add_argument('--exclude', '-I', action='append', help="Using this flag, packages can be exluded from being built, dependencies matching the regex, whill not be built")
         p.add_argument('--maintainer', help="The maintainer of the package", default="nobody@example.com")
         p.add_argument('--pre-remove-script', default=pre_remove_script)
         p.add_argument('--fpm-bin', default='fpm')
         p.add_argument('--python-install-lib', default='/usr/lib/python2.7/dist-packages/')
-        p.add_argument('--target', '-t', default='deb', choices=self.package_type_choices, help='the type of package you want to create (deb, rpm, solaris, etc)')
+        p.add_argument('--target', '-t', default='deb', choices=PACKAGE_TYPE_CHOICES, help='the type of package you want to create (deb, rpm, solaris, etc)')
         p.add_argument('--no-python-dependencies', default=False, action='store_true', help="Do not include requirements defined in setup.py as dependencies.")
         p.add_argument('--vdt-fpmeditor-path', default='vdt.fpmeditor', help="path to vdt.fpmeditor or some other script you need to use on package spec files.")
         return p
@@ -70,7 +67,6 @@ class DebianizeArgumentParser(object):
     def parse_known_args(self):
         p = self.get_parser()
         args, extra_args = p.parse_known_args(self.version_args)
-    
         return args, extra_args
 
 
@@ -180,7 +176,7 @@ class PackageBuilder(object):
         else:  # assume it is a tarball
             return tarfile.open(path), basename(path)[:-7]
 
-    def build_dependency(self, args, extra_args, path, package_dir, deb_dir, dependency_builder=None):
+    def build_dependency(self, args, extra_args, path, package_dir, deb_dir, glob_pattern=None, dependency_builder=None):
         handle, package_name = self.select_file_type(path)
         with handle as tar:  # extract the python package
             tar.extractall(package_dir)
@@ -197,7 +193,7 @@ class PackageBuilder(object):
             self.update_exit_code(ex)
 
             # moves debs to common folder.
-            for deb in glob(join(target_path, PACKAGE_TYPES[args.target]['glob'])):
+            for deb in glob(join(target_path, glob_pattern or PACKAGE_TYPES[args.target]['glob'])):
                 try:
                     shutil.move(deb, deb_dir)
                 except shutil.Error:
