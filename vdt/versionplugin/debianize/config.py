@@ -23,4 +23,6 @@ PACKAGE_TYPES = {
     }
 }
 
-PACKAGE_TYPE_CHOICES = PACKAGE_TYPES.keys()
+
+def package_type_choices():
+    return PACKAGE_TYPES.keys()
