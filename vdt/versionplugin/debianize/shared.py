@@ -177,14 +177,15 @@ class PackageBuilder(object):
         else:  # assume it is a tarball
             return tarfile.open(path), basename(path)[:-7]
 
-    def build_dependency(self, args, extra_args, path, package_dir, deb_dir):
+    def build_dependency(self, args, extra_args, path, package_dir, deb_dir, dependency_builder=None):
         handle, package_name = self.select_file_type(path)
         with handle as tar:  # extract the python package
             tar.extractall(package_dir)
 
             # determine folder name where setup.py lives
             target_path = join(package_dir, package_name)
-            ex = build_from_python_source_with_fpm(
+            dependency_builder = dependency_builder or build_from_python_source_with_fpm  # noqa
+            ex = dependency_builder(
                 args,
                 extra_args,
                 target_path=target_path,
