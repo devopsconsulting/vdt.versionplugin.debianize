@@ -22,7 +22,3 @@ PACKAGE_TYPES = {
         'glob': '*.pkg'
     }
 }
-
-
-def package_type_choices():
-    return PACKAGE_TYPES.keys()

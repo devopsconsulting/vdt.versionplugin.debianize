@@ -18,7 +18,6 @@ from vdt.version.utils import change_directory
 from vdt.versionplugin.debianize.config import (
     PACKAGE_TYPES,
     FILES_PATH,
-    package_type_choices
 )
 
 log = logging.getLogger(__name__)
@@ -51,6 +50,10 @@ class DebianizeArgumentParser(object):
     def __init__(self, version_args):
         self.version_args = version_args
 
+    @property
+    def package_type_choices(self):
+        return PACKAGE_TYPES.keys()
+
     def get_parser(self):
         p = argparse.ArgumentParser(description=self.__doc__)
         p.add_argument('--include','-i', action='append', help="Using this flag makes following dependencies explicit. It will only build dependencies listed in install_requires that match the regex specified after -i. Use -i multiple times to specify multiple packages")
@@ -59,7 +62,7 @@ class DebianizeArgumentParser(object):
         p.add_argument('--pre-remove-script', default=pre_remove_script)
         p.add_argument('--fpm-bin', default='fpm')
         p.add_argument('--python-install-lib', default='/usr/lib/python2.7/dist-packages/')
-        p.add_argument('--target', '-t', default='deb', choices=package_type_choices(), help='the type of package you want to create (deb, rpm, solaris, etc)')
+        p.add_argument('--target', '-t', default='deb', choices=self.package_type_choices, help='the type of package you want to create (deb, rpm, solaris, etc)')
         p.add_argument('--no-python-dependencies', default=False, action='store_true', help="Do not include requirements defined in setup.py as dependencies.")
         p.add_argument('--vdt-fpmeditor-path', default='vdt.fpmeditor', help="path to vdt.fpmeditor or some other script you need to use on package spec files.")
         return p
