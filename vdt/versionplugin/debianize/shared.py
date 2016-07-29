@@ -15,7 +15,11 @@ from pip.commands.download import DownloadCommand
 from vdt.version.utils import empty_directory
 from vdt.version.utils import change_directory
 
-from vdt.versionplugin.debianize.config import PACKAGE_TYPES, PACKAGE_TYPE_CHOICES, FILES_PATH
+from vdt.versionplugin.debianize.config import (
+    PACKAGE_TYPES,
+    PACKAGE_TYPE_CHOICES,
+    FILES_PATH,
+)
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +52,7 @@ class DebianizeArgumentParser(object):
         self.version_args = version_args
 
     def get_parser(self):
-        p = argparse.ArgumentParser(description=self.__doc__)
+        p = argparse.ArgumentParser(description=self.__doc__, conflict_handler='resolve')
         p.add_argument('--include','-i', action='append', help="Using this flag makes following dependencies explicit. It will only build dependencies listed in install_requires that match the regex specified after -i. Use -i multiple times to specify multiple packages")
         p.add_argument('--exclude', '-I', action='append', help="Using this flag, packages can be exluded from being built, dependencies matching the regex, whill not be built")
         p.add_argument('--maintainer', help="The maintainer of the package", default="nobody@example.com")
@@ -63,7 +67,6 @@ class DebianizeArgumentParser(object):
     def parse_known_args(self):
         p = self.get_parser()
         args, extra_args = p.parse_known_args(self.version_args)
-    
         return args, extra_args
 
 
@@ -173,14 +176,18 @@ class PackageBuilder(object):
         else:  # assume it is a tarball
             return tarfile.open(path), basename(path)[:-7]
 
-    def build_dependency(self, args, extra_args, path, package_dir, deb_dir):
+    def build_dependency(self, args, extra_args, path, package_dir, deb_dir, glob_pattern=None, dependency_builder=None):
         handle, package_name = self.select_file_type(path)
         with handle as tar:  # extract the python package
             tar.extractall(package_dir)
 
             # determine folder name where setup.py lives
             target_path = join(package_dir, package_name)
-            ex = build_from_python_source_with_fpm(
+
+            if dependency_builder is None:
+                dependency_builder = build_from_python_source_with_fpm
+
+            ex = dependency_builder(
                 args,
                 extra_args,
                 target_path=target_path,
@@ -188,8 +195,12 @@ class PackageBuilder(object):
             )
             self.update_exit_code(ex)
 
+            if glob_pattern is None:
+                # when not defined, default the glob to what's in the config
+                glob_pattern = PACKAGE_TYPES[args.target]['glob']
+
             # moves debs to common folder.
-            for deb in glob(join(target_path, PACKAGE_TYPES[args.target]['glob'])):
+            for deb in glob(join(target_path, glob_pattern)):
                 try:
                     shutil.move(deb, deb_dir)
                 except shutil.Error:
