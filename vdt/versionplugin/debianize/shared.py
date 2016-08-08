@@ -28,6 +28,15 @@ pre_remove_script = join(FILES_PATH, 'files/preremove.sh')
 PACKAGE_NAME_REGEX = re.compile(r"(?P<name>.*)-.*")
 
 
+class StoreReqSetDownloadCommand(DownloadCommand):
+
+    def main(self, args):
+        # override this method so we return the downloaded requirement set
+        options, args = self.parse_args(args)
+        requirement_set = self.run(options, args)
+        return requirement_set
+
+
 class FileFilter(object):
     def __init__(self, include, exclude):
         self.include = include
@@ -136,11 +145,12 @@ class PackageBuilder(object):
     """
     This class build the a package from a python egg, including it's
     dependencies.
-    
+
     It has all kinds of hooks that can be overridden.
     """
     def __init__(self, version, args, extra_args, directory):
         self.version = version
+        self.downloaded_req_set = None
         self.args = args
         self.extra_args = extra_args
         self.directory = directory
@@ -162,13 +172,14 @@ class PackageBuilder(object):
         self.update_exit_code(ex)
 
     def download_dependencies(self, install_dir, deb_dir):
-        downloader = DownloadCommand(False)
-        downloader.main([
-                '--no-binary=:all:',
-                '--dest=%s' % install_dir,
-                deb_dir
+        downloader = StoreReqSetDownloadCommand(False)
+        self.downloaded_req_set = downloader.main([
+            '--no-binary=:all:',
+            '--dest=%s' % install_dir,
+            deb_dir
         ])
-        return glob(join(install_dir, '*.tar.gz')) + glob(join(install_dir, '*.zip'))
+        return glob(
+            join(install_dir, '*.tar.gz')) + glob(join(install_dir, '*.zip'))
 
     def select_file_type(self, path):
         if path.lower().endswith('.zip'):
@@ -223,6 +234,6 @@ class PackageBuilder(object):
                         self.build_dependency(self.args, self.extra_args, download, package_dir, deb_dir)
 
     def build_package_and_dependencies(self):
-        self.build_package(self.version, self.args, self.extra_args)
         if not self.args.no_python_dependencies:
             self.build_dependencies(self.version, self.args, self.extra_args, self.directory)
+        self.build_package(self.version, self.args, self.extra_args)
