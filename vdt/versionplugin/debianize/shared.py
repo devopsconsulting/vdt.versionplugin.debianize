@@ -178,12 +178,13 @@ class PackageBuilder(object):
             '--dest=%s' % install_dir,
             deb_dir
         ])
-        return glob(
-            join(install_dir, '*.tar.gz')) + glob(join(install_dir, '*.zip'))
+        return glob(join(install_dir, '*.tar.gz')) + glob(join(install_dir, '*.zip')) + glob(join(install_dir, '*.tar.bz2'))  # noqa
 
     def select_file_type(self, path):
         if path.lower().endswith('.zip'):
             return zipfile.ZipFile(path), basename(path)[:-4]
+        if path.lower().endswith('tar.bz2'):
+            return tarfile.open(path, "r:bz2"), basename(path)[:-8]
         else:  # assume it is a tarball
             return tarfile.open(path), basename(path)[:-7]
 
