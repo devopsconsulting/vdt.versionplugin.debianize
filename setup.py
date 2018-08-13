@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 pkgname = "vdt.versionplugin.debianize"
 
 setup(name=pkgname,
-      version="1.0.5",
+      version="1.0.6",
       description="Version Increment Plugin that builds with debianize",
       author="Lars van de Kerkhof",
       author_email="lars@permanentmarkers.nl",
