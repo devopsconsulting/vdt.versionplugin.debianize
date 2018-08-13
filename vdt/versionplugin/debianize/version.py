@@ -27,4 +27,5 @@ def get_version(version_args):
         return get_git_version(version_args)
     except VersionNotFound:
         log.debug('no version tag found, taking version from setup.py')
-        return Version(subprocess.check_output(['python', 'setup.py', '--version']), extra_args=version_args)
+        result = subprocess.check_output(['python', 'setup.py', '--version'])
+        return Version(result.decode("utf-8"), extra_args=version_args)
