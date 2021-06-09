@@ -20,7 +20,7 @@ setup(
         "vdt.version>=0.1.4",
         "vdt.versionplugin.default",
         "vdt.versionplugin.wheel>=0.0.7",
-        "pip==10.0.1",
+        "pip==19.2",
     ],
     entry_points={
         "console_scripts": [
